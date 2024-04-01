@@ -3,6 +3,9 @@ from llm_setting import LLMSetting
 
 
 class Reader(LLMSetting):
+    def __init__(self, setting):
+        self.llm = setting.llm
+
     def create_answer_at_a_time(self, query_related_component, query):
         chain = load_qa_chain(llm=self.llm)
 

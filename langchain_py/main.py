@@ -1,33 +1,26 @@
-import os
-from langchain.llms import OpenAI
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores.faiss import FAISS
-from langchain.chains.question_answering import load_qa_chain
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.document_loaders import UnstructuredHTMLLoader
-from langchain.document_loaders import BSHTMLLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.chains import LLMChain
-from langchain import PromptTemplate
-from bs4 import BeautifulSoup
-import requests
 from parser_class import Parser
+from indexer_class import Indexer
+from retriever_class import Retriever
+from reader_class import Reader
 from llm_setting import LLMSetting
 
 
 def main():
+    setting = LLMSetting()
     query = "三菱重工の歴代社長を教えてください"
-    source_path = "mhi.txt"
+    source_path = "langchain_py/mhi.txt"
     parser = Parser(source_path)
-    source_text = parser.full_source_text
+    full_text = parser.full_source_text
+    indexer = Indexer()
+    retriever = Retriever(setting)
+    reader = Reader(setting)
 
-    llm_instance = LLMSetting()
-    query_related_component = llm_instance.GetQueryRelatedComponent(
-        source_text, query)
-
-    result = llm_instance.GetAIResponseWithSource(
-        query_related_component, query)
-    print(result)
+    splitted_text = indexer.chunking_to_plaintext(full_text)
+    print(splitted_text)
+    query_related_component = retriever.retrieve_by_faiss(splitted_text, query)
+    print(query_related_component)
+    output = reader.create_answer_at_a_time(query_related_component, query)
+    print(output)
 
 
 if __name__ == "__main__":

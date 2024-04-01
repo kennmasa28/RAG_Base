@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import requests
 
 
-class Parser():
+class Parser(object):
 
     def __init__(self, source_path):
         self.source_path = source_path
