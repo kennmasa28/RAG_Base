@@ -2,7 +2,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from llm_setting import LLMSetting
 
 
-class Indexer(LLMSetting):
+class Splitter(LLMSetting):
     def __init__(self):
         self.text_splitter = CharacterTextSplitter(chunk_size=5000, chunk_overlap=0)
     
