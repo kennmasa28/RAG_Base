@@ -26,7 +26,7 @@ if __name__=='__main__':
     splitted_text = splitter.chunking_to_plaintext(full_text)
 
     # save
-    output_json = json.dumps([{"index": index, "content": content} for index, content in enumerate(splitted_text)], ensure_ascii=False)
+    output_json = json.dumps([[{"index": index, "content": content},] for index, content in enumerate(splitted_text)], ensure_ascii=False)
     save_path = str(current_dir) + "/splitted_texts.json"
     with open(save_path, 'w', encoding='utf-8') as f:
-                json.dump(output_json, f, indent=0, ensure_ascii=False)
+            json.dump(output_json, f, indent=2, ensure_ascii=False)

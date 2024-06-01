@@ -1,6 +1,6 @@
 import os
-from langchain.llms import OpenAI
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import OpenAI
+from langchain_openai import OpenAIEmbeddings
 import openai
 
 

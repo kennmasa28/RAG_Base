@@ -17,4 +17,5 @@ if __name__=='__main__':
     source = str(current_dir) + "/splitted_texts.json"
     with open(source, encoding="utf-8") as jsonfile:
         data = json.load(jsonfile)
-    print(data)
+    data_list = [item["content"] for item in data]
+    print(data_list)

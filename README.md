@@ -4,4 +4,4 @@
 
 ## RAG_module
 - RAGの機能をまとめてモジュール化したものです
-- langchain 0.xx版の記述です
+- langchain 1.xx版の記述です

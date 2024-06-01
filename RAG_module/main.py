@@ -6,7 +6,7 @@ index_dir = str(current_dir) + "/index"
 save_dir = str(current_dir) + "/results"
 
 
-agent = ChatWithVectorStorIndex(model="gpt-4",
+agent = ChatWithVectorStorIndex(model="gpt-4-turbo-preview",
                                 similarity_top_k=3)
 res = agent.GetAIResponse(query="三菱重工の2019年からの社長は誰か", 
                           index_dir=index_dir, 

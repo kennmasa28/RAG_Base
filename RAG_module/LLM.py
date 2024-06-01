@@ -11,9 +11,9 @@ from llama_index import(
     PromptHelper
 )
 from llama_index.embeddings import LangchainEmbedding
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings
 from llama_index.indices.service_context import ServiceContext
-from langchain.embeddings import OpenAIEmbeddings
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 import logging
