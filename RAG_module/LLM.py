@@ -84,7 +84,7 @@ class ChatWithVectorStorIndex(object):
         llm = ChatOpenAI(model = self.model,
                         temperature = self.temperature,
                         max_tokens = self.max_tokens,
-                        top_p = self.top_p
+                         model_kwargs={"top_p": self.top_p}
                         )
         # Embedding
         self.embedding_model = embedding_model
@@ -129,15 +129,22 @@ class ChatWithVectorStorIndex(object):
         index = load_index_from_storage(storage_context)
         with open(index_dir + "/docstore.json", "wt", encoding='utf-8') as f:
             json.dump(index.storage_context.docstore.to_dict(), f, indent=2, ensure_ascii=False)
-        query_engine = index.as_query_engine(service_context=self.service_context, similarity_top_k = self.similarity_top_k)
+        query_engine = index.as_query_engine(service_context=self.service_context, 
+                                             similarity_top_k = self.similarity_top_k,
+                                             response_modes="refine")
+        # response mode :https://docs.llamaindex.ai/en/stable/module_guides/deploying/query_engine/response_modes/
         response = query_engine.query(query)
         response_text = str(response)
         if show_flag:
             print(response_text)
+        
+        # クエリとアウトプットをjsonに保存
         if savefile!='':
             content = [{'query': query, 'response': response_text}]
             with open(savefile, 'w', encoding='utf-8') as f:
                 json.dump(content, f, indent=2, ensure_ascii=False)
+
+        # 引用テキストを保存
         if self.logfile!='':
             self.LoadLog(self.logfile, index_dir)
         return response_text
@@ -153,7 +160,8 @@ class ChatWithVectorStorIndex(object):
         for i in range(len(nodes)):
             index = str(nodes[i])
             cited_text.append(logtext['docstore/data'][index]['__data__']['text'])
-        with open(log_path + ".summary.txt", 'w', encoding='utf-8') as f:
+        cited_text_filename = os.path.basename(log_path) + ".cited_text.txt"
+        with open(cited_text_filename, 'w', encoding='utf-8') as f:
             for context in cited_text:
                 f.write(context)
                 f.write("\n---------\n\n")
