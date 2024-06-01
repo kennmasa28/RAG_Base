@@ -44,3 +44,10 @@ class Parser(object):
                              from_encoding='utf-8')
         text_content = soup.get_text()
         return text_content
+
+if __name__=='__main__':
+    from pathlib import Path
+    current_dir = Path(__file__).parent
+    source = str(current_dir) + "/mhi.txt"
+    parser = Parser(source)
+    print(parser.full_source_text)
