@@ -73,7 +73,7 @@ class ChatWithoutIndex(object):
 
 class ChatWithVectorStorIndex(object):
     def __init__(self, model="gpt-3.5-turbo-16k", temperature=0.2, max_tokens=4096, top_p=1.0, frequency_penalty=0, presence_penalty=0.6,
-                 embedding_model='text-embedding-ada-002', chunk_overlap_rate=0.1, chunk_size_limit=1024, num_output=512, similarity_top_k=1, logfile=''):
+                 embedding_model='text-embedding-ada-002', chunk_overlap_rate=0.1, chunk_size_limit=1024, num_output=512, similarity_top_k=1):
         # LLM
         self.model = model
         self.temperature = temperature
@@ -110,10 +110,6 @@ class ChatWithVectorStorIndex(object):
             embed_model=embedding_llm,
             prompt_helper=prompt_helper
         )
-        #Log
-        self.logfile = logfile
-        if self.logfile!='':
-            logging.basicConfig(level=DEBUG, filename=self.logfile, encoding='utf-8')
     
     def indexing_from_documents(self, documents_dir, index_dir):
         documents = SimpleDirectoryReader(documents_dir).load_data()
@@ -124,7 +120,12 @@ class ChatWithVectorStorIndex(object):
         with open(index_dir + "/docstore.json", "wt", encoding='utf-8') as f:
             json.dump(index.storage_context.docstore.to_dict(), f, indent=2, ensure_ascii=False)
 
-    def GetAIResponse(self, query, index_dir, show_flag=False, savefile=''):
+    def GetAIResponse(self, query, index_dir, show_flag=False, save_dir=''):
+        #Log
+        nowtime = datetime.datetime.now().strftime('%Y-%m-%d-%H%M%S')
+        if save_dir != "":
+            self.logfile = save_dir + "/log_" + nowtime + ".log"
+            logging.basicConfig(level=DEBUG, filename=self.logfile, encoding='utf-8')
         storage_context = StorageContext.from_defaults(persist_dir=index_dir)
         index = load_index_from_storage(storage_context)
         with open(index_dir + "/docstore.json", "wt", encoding='utf-8') as f:
@@ -139,17 +140,18 @@ class ChatWithVectorStorIndex(object):
             print(response_text)
         
         # クエリとアウトプットをjsonに保存
-        if savefile!='':
+        if save_dir!='':
+            savefile = save_dir + "/result_" + nowtime + ".json"
             content = [{'query': query, 'response': response_text}]
             with open(savefile, 'w', encoding='utf-8') as f:
                 json.dump(content, f, indent=2, ensure_ascii=False)
 
         # 引用テキストを保存
-        if self.logfile!='':
-            self.LoadLog(self.logfile, index_dir)
+        if save_dir!="":
+            self.LoadLog(self.logfile, index_dir, save_dir, nowtime)
         return response_text
     
-    def LoadLog(self, log_path, index_dir):
+    def LoadLog(self, log_path, index_dir, save_dir, nowtime):
         with open(log_path, 'r', encoding='utf-8') as f:
             logtext = f.read()
         pattern = r'\[Node ([a-f0-9\-]+)\]'
@@ -160,7 +162,7 @@ class ChatWithVectorStorIndex(object):
         for i in range(len(nodes)):
             index = str(nodes[i])
             cited_text.append(logtext['docstore/data'][index]['__data__']['text'])
-        cited_text_filename = os.path.basename(log_path) + ".cited_text.txt"
+        cited_text_filename = save_dir + "/citation_" + nowtime + ".txt"
         with open(cited_text_filename, 'w', encoding='utf-8') as f:
             for context in cited_text:
                 f.write(context)
